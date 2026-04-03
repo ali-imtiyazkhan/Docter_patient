@@ -60,7 +60,9 @@ export const createUser = async (user: CreateUserParams) => {
 // GET USER
 export const getUser = async (userId: string) => {
   try {
-    const user = await users.get(userId);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
     return parseStringify(user);
   } catch (error) {
@@ -164,12 +166,10 @@ export const updatePatientUserId = async (
   userId: string
 ) => {
   try {
-    const updated = await databases.updateDocument(
-      NEXT_PUBLIC_DATABASE_ID!,
-      NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
-      patientId,
-      { userId }
-    );
+    const updated = await prisma.patient.update({
+      where: { id: patientId },
+      data: { userId },
+    });
     return parseStringify(updated);
   } catch (error) {
     console.error("An error occurred while updating patient userId:", error);
