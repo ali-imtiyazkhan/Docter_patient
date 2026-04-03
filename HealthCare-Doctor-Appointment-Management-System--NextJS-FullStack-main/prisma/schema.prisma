@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  patient   Patient?
+  appointments Appointment[]
+}
+
+model Patient {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name                   String
+  email                  String   @unique
+  phone                  String
+  birthDate              DateTime
+  gender                 String // "Male", "Female", "Other"
+  address                String
+  occupation             String
+  emergencyContactName   String
+  emergencyContactNumber String
+  primaryPhysician       String
+  insuranceProvider      String
+  insurancePolicyNumber  String
+  allergies              String?
+  currentMedication      String?
+  familyMedicalHistory     String?
+  pastMedicalHistory     String?
+  identificationType     String?
+  identificationNumber   String?
+  identificationDocumentId String?
+  identificationDocumentUrl String?
+  privacyConsent         Boolean
+  
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  
+  appointments           Appointment[]
+}
+
+model Appointment {
+  id                 String   @id @default(cuid())
+  patientId          String
+  patient            Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  schedule           DateTime
+  status             String   @default("pending") // "pending", "scheduled", "cancelled"
+  primaryPhysician   String
+  reason             String
+  note               String?
+  cancellationReason String?
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
